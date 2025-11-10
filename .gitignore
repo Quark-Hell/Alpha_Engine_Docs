@@ -416,3 +416,4 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+DocsGenerator/DocsGenerator.AppHost/generated-docs
