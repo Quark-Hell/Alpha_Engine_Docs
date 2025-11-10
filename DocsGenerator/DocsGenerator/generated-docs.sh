@@ -42,9 +42,11 @@ if [ ! -f "/src_project/Doxyfile" ]; then
   sed -i "s|^HTML_EXTRA_FILES.*=.*|HTML_EXTRA_FILES       = /doxygen-awesome-css/doxygen-awesome-darkmode-toggle.js /doxygen-awesome-css/doxygen-awesome-fragment-copy-button.js /doxygen-awesome-css/doxygen-awesome-paragraph-link.js|" /src_project/Doxyfile
 
   # Graphviz
+  sed -i "s|^#*HAVE_DOT.*=.*|HAVE_DOT = YES|" /src_project/Doxyfile
+
   sed -i "s|^#*DOT_TRANSPARENT.*=.*|DOT_TRANSPARENT				= YES|" /src_project/Doxyfile
   sed -i "s|^#*DOT_IMAGE_FORMAT.*=.*|DOT_IMAGE_FORMAT			= svg|" /src_project/Doxyfile
-  sed -i "s|^#*DOT_GRAPH_MAX_NODES.*=.*|DOT_GRAPH_MAX_NODES     = 100|" /src_project/Doxyfile
+  sed -i "s|^#*DOT_GRAPH_MAX_NODES.*=.*|DOT_GRAPH_MAX_NODES     = 50|" /src_project/Doxyfile
   sed -i "s|^#*DOT_FONTPATH.*=.*|DOT_FONTPATH					= /usr/share/fonts/truetype/dejavu|" /src_project/Doxyfile
   sed -i "s|^#*DOT_FONTNAME.*=.*|DOT_FONTNAME					= DejaVu Sans|" /src_project/Doxyfile
   sed -i "s|^#*DOT_FONTSIZE.*=.*|DOT_FONTSIZE					= 10|" /src_project/Doxyfile
@@ -53,6 +55,9 @@ if [ ! -f "/src_project/Doxyfile" ]; then
   sed -i "s|^#*DOT_NODE_COLOR.*=.*|DOT_NODE_COLOR				= \"#eeeeee\"|" /src_project/Doxyfile
   sed -i "s|^#*DOT_TEXT_COLOR.*=.*|DOT_TEXT_COLOR				= \"#dddddd\"|" /src_project/Doxyfile
   sed -i "s|^#*DOT_FONTCOLOR.*=.*|DOT_FONTCOLOR					= \"#dddddd\"|" /src_project/Doxyfile
+
+  sed -i "s|^#*DOT_LAYOUT.*=.*|DOT_LAYOUT = dot|" /src_project/Doxyfile
+  sed -i "s|^#*DOT_GRAPH_DIRECTION.*=.*|DOT_GRAPH_DIRECTION = TB|" /src_project/Doxyfile
 fi
 
 echo "Generating documentation..."
