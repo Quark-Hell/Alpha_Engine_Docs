@@ -25,8 +25,5 @@ RUN mkdir -p /app/docs
 
 COPY DocsGenerator/logos /app/logos
 
-COPY DocsGenerator/generated-docs.sh /generated-docs.sh
-RUN dos2unix /generated-docs.sh && chmod +x /generated-docs.sh
-
 EXPOSE 8080
-ENTRYPOINT ["/generated-docs.sh"]
+ENTRYPOINT ["dotnet", "DocsGenerator.dll"]

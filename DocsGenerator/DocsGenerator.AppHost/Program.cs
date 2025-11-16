@@ -1,13 +1,17 @@
-﻿var builder = DistributedApplication.CreateBuilder(args);
+﻿using Aspire.Hosting;
+using Projects;
+using System;
 
-var postgres = builder.AddPostgres("postgres")
-    .AddDatabase("docsdb");
+var builder = DistributedApplication.CreateBuilder(args);
+
+var postgres = builder.AddPostgres("postgres").WithPgAdmin();
+var postgresdb = postgres.WithDataVolume().AddDatabase("docsdb");
 
 var docsPath = Path.Combine(builder.AppHostDirectory, "generated-docs");
 Directory.CreateDirectory(docsPath);
 
 var docsGenerator = builder.AddDockerfile("docsgenerator", "..", "DocsGenerator/Dockerfile")
-    .WithReference(postgres)
+    .WithReference(postgresdb)
     .WithHttpEndpoint(port: 5001, targetPort: 8080, name: "api")
     .WithBindMount(docsPath, "/app/docs");
 
