@@ -1,8 +1,4 @@
-﻿using Aspire.Hosting;
-using Projects;
-using System;
-
-var builder = DistributedApplication.CreateBuilder(args);
+﻿var builder = DistributedApplication.CreateBuilder(args);
 
 var postgres = builder.AddPostgres("postgres").WithPgAdmin();
 var postgresdb = postgres.WithDataVolume().AddDatabase("docsdb");
