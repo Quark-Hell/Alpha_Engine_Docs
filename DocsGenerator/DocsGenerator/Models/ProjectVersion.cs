@@ -11,7 +11,6 @@ namespace DocsGenerator.Models
         public string CommitHash { get; set; } = null!;
         public string Branch { get; set; } = null!;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public bool DocsGenerated { get; set; } = false;
         public string? DocsPath { get; set; }
     }
 }
