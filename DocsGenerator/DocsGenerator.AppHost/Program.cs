@@ -8,6 +8,7 @@ Directory.CreateDirectory(docsPath);
 
 var docsGenerator = builder.AddDockerfile("docsgenerator", "..", "DocsGenerator/Dockerfile")
     .WithReference(postgresdb)
+    .WaitFor(postgresdb)
     .WithHttpEndpoint(port: 5001, targetPort: 8080, name: "api")
     .WithBindMount(docsPath, "/app/docs");
 
@@ -16,6 +17,7 @@ var nginxConfigPath = Path.Combine(builder.AppHostDirectory, "nginx.conf");
 var docsWeb = builder.AddContainer("docs-nginx", "nginx", "alpine")
     .WithBindMount(docsPath, "/usr/share/nginx/html/docs", isReadOnly: true)
     .WithBindMount(nginxConfigPath, "/etc/nginx/nginx.conf", isReadOnly: true)
+    .WaitFor(docsGenerator)
     .WithHttpEndpoint(port: 8080, targetPort: 80, name: "docs");
 
 builder.Build().Run();

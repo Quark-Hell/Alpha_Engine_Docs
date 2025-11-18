@@ -18,6 +18,9 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<DoxygenSetupService>();
 builder.Services.AddHostedService<DoxygenSetupBackgroundService>();
 
+builder.Services.AddHealthChecks()
+    .AddNpgSql(builder.Configuration.GetConnectionString("docsdb")!);
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
