@@ -3,8 +3,9 @@
 var postgres = builder.AddPostgres("postgres").WithPgAdmin();
 var postgresdb = postgres.WithDataVolume().AddDatabase("docsdb");
 
-var docsPath = Path.Combine(builder.AppHostDirectory, "generated-docs");
+var docsPath = Path.Combine(builder.AppHostDirectory, "resources");
 Directory.CreateDirectory(docsPath);
+Directory.CreateDirectory($"{docsPath}/general");
 
 var docsGenerator = builder.AddDockerfile("docsgenerator", "..", "DocsGenerator/Dockerfile")
     .WithReference(postgresdb)

@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install -y wget graphviz git dos2unix && \
 COPY --from=build /app/publish .
 RUN mkdir -p /app/docs
 
-COPY DocsGenerator/logos /app/logos
+COPY DocsGenerator/resources /app/resources
 
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "DocsGenerator.dll"]
