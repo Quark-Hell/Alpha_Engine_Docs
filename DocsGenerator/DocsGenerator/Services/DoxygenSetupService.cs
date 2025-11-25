@@ -1,5 +1,10 @@
-﻿using System.Diagnostics;
+﻿using DocsGenerator.Data;
+using DocsGenerator.Models;
+using System.Diagnostics;
+using System.Net.NetworkInformation;
+using Microsoft.EntityFrameworkCore;
 using System.Text;
+using System.Text.Json;
 
 namespace DocsGenerator.Services;
 
@@ -7,27 +12,115 @@ public class DoxygenSetupService
 {
     private readonly ILogger<DoxygenSetupService> _logger;
     private readonly IConfiguration _configuration;
+    private readonly IServiceScopeFactory _scopeFactory;
 
-    public DoxygenSetupService(ILogger<DoxygenSetupService> logger, IConfiguration configuration)
+    private readonly string owner = "Quark-Hell";
+    private readonly string repo = "Alpha_Engine";
+    private readonly string branch = "Architect2.0";
+
+    private string? _lastGithubHash;
+    private string? _lastGithubCommitName;
+    private string? _lastDbHash;
+    private DateTime _lastGitCommitCreated;
+
+    private string _folderName;
+    private string _lastDocsPath;
+
+    public DoxygenSetupService(ILogger<DoxygenSetupService> logger, IConfiguration configuration, IServiceScopeFactory scopeFactory)
     {
         _logger = logger;
         _configuration = configuration;
+        _scopeFactory = scopeFactory;
+
+        UpdateFolderPath("");
+    }
+
+    private void UpdateFolderPath(string folderName)
+    {
+        _folderName = $"{folderName}";
+        _lastDocsPath = $"/app/docs/{_folderName}";
+    }
+
+    public async Task DbInsertAsync(ProjectVersion pv)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        db.ProjectVersions.Add(pv);
+        await db.SaveChangesAsync();
+        _logger.LogInformation("Inserted ProjectVersion with ID: {Id}", pv.Id);
     }
 
     public async Task SetupAsync()
     {
         try
         {
-            await CloneProjectRepositoryAsync();
-            await CloneDoxygenAwesomeAsync();
-            await GenerateDoxyfileAsync();
-            await GenerateDocumentationAsync();
+            await FetchFromGuthub();
+            _lastDbHash = await GetLastHashFromDB();
+
+            if (_lastGithubHash == null)
+            {
+                throw new InvalidOperationException("Cannot get hash from GitHub");
+            }
+
+            if (_lastDbHash == null || _lastDbHash != _lastGithubHash)
+            {
+                UpdateFolderPath($"{_lastGithubHash}");
+
+                await CloneProjectRepositoryAsync();
+                await CloneDoxygenAwesomeAsync();
+                await GenerateDoxyfileAsync();
+                await GenerateDocumentationAsync();
+            }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error during Doxygen setup");
             throw;
         }
+    }
+
+    private async Task FetchFromGuthub()
+    {
+        using var http = new HttpClient();
+
+        http.DefaultRequestHeaders.Add("User-Agent", "DocsGenerator");
+
+        var url = $"https://api.github.com/repos/{owner}/{repo}/commits/{branch}";
+
+        try
+        {
+            var response = await http.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(json);
+
+            var root = doc.RootElement;
+
+            _lastGithubHash = doc.RootElement.GetProperty("sha").GetString()!;
+            _lastGithubCommitName = root.GetProperty("commit").GetProperty("message").GetString()!;
+
+            _lastGitCommitCreated = root.GetProperty("commit").GetProperty("committer").GetProperty("date").GetDateTime();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error while fetching commit info: " + ex.Message);
+            _lastGithubHash = null;
+            _lastGithubCommitName = null;
+        }
+    }
+
+    private async Task<string?> GetLastHashFromDB()
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        var last = await db.ProjectVersions
+    .OrderByDescending(p => p.Id)
+    .FirstOrDefaultAsync();
+
+        return last?.CommitHash;
     }
 
     private async Task CloneProjectRepositoryAsync()
@@ -41,7 +134,7 @@ public class DoxygenSetupService
 
         _logger.LogInformation("Cloning project repository...");
         await RunCommandAsync("git",
-            "clone -b Architect2.0 --single-branch https://github.com/Quark-Hell/Alpha_Engine /src_project/project");
+            $"clone --depth 1 -b {branch} --single-branch https://github.com/{owner}/{repo} /src_project/project");
         _logger.LogInformation("Project repository cloned successfully");
     }
 
@@ -50,11 +143,9 @@ public class DoxygenSetupService
         var doxygenAwesomePath = "/doxygen-awesome-css";
         if (Directory.Exists(doxygenAwesomePath))
         {
-            _logger.LogInformation("doxygen-awesome-css already exists");
             return;
         }
 
-        _logger.LogInformation("Cloning doxygen-awesome-css...");
         await RunCommandAsync("git",
             "clone https://github.com/jothepro/doxygen-awesome-css.git /doxygen-awesome-css");
         _logger.LogInformation("doxygen-awesome-css cloned successfully");
@@ -80,7 +171,7 @@ public class DoxygenSetupService
             ["DOT_IMAGE_FORMAT"] = "svg",
 
             // Doxygen settings
-            ["OUTPUT_DIRECTORY"] = "/app/docs",
+            ["OUTPUT_DIRECTORY"] = $"{_lastDocsPath}",
             ["INPUT"] = "/src_project/project/ALPHA_Engine/Engine",
             ["RECURSIVE"] = "YES",
             ["GENERATE_HTML"] = "YES",
@@ -88,13 +179,17 @@ public class DoxygenSetupService
             ["FILE_PATTERNS"] = "*.c *.cc *.cxx *.cpp *.c++ *.h *.hpp *.hxx",
             ["EXCLUDE_PATTERNS"] = "*/[Ee][Xx][Tt][Ee][Rr][Nn][Aa][Ll]/* */[Ee][Xx][Tt][Ee][Rr][Nn][Aa][Ll]/",
             ["PROJECT_NAME"] = "\"Alpha Engine\"",
-            ["PROJECT_LOGO"] = "/app/logos/Alpha_Engine_Logo_64.png",
+            ["PROJECT_LOGO"] = "/app/resources/logos/Alpha_Engine_Logo_64.png",
             ["GENERATE_TREEVIEW"] = "YES",
             ["DISABLE_INDEX"] = "NO",
             ["FULL_SIDEBAR"] = "NO",
             ["HTML_COLORSTYLE"] = "LIGHT",
             ["HTML_EXTRA_STYLESHEET"] = "/doxygen-awesome-css/doxygen-awesome.css /doxygen-awesome-css/doxygen-awesome-sidebar-only.css",
-            ["HTML_EXTRA_FILES"] = "/doxygen-awesome-css/doxygen-awesome-darkmode-toggle.js /doxygen-awesome-css/doxygen-awesome-fragment-copy-button.js /doxygen-awesome-css/doxygen-awesome-paragraph-link.js",
+            ["HTML_EXTRA_FILES"] =
+    "/doxygen-awesome-css/doxygen-awesome-darkmode-toggle.js " +
+    "/doxygen-awesome-css/doxygen-awesome-fragment-copy-button.js " +
+    "/doxygen-awesome-css/doxygen-awesome-paragraph-link.js ",
+
 
             ["SHOW_FILES"] = "NO",
             ["SHOW_NAMESPACES"] = "YES",
@@ -169,6 +264,19 @@ public class DoxygenSetupService
         _logger.LogInformation("Generating documentation...");
         await RunCommandAsync("doxygen", "/src_project/Doxyfile");
         _logger.LogInformation("Documentation generated successfully");
+
+        using var scope = _scopeFactory.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        var version = new ProjectVersion {
+            CommitHash = _lastGithubHash,
+            CommitName = _lastGithubCommitName,
+            Branch = branch,
+            CreatedAt = _lastGitCommitCreated,
+            DocsPath = $"/docs/{_folderName}"
+        };
+
+        await DbInsertAsync(version);
     }
 
     private async Task<string> RunCommandAsync(string command, string arguments)
