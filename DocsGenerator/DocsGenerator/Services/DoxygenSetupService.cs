@@ -182,7 +182,9 @@ public class DoxygenSetupService
             ["PROJECT_LOGO"] = "/app/resources/logos/Alpha_Engine_Logo_64.png",
             ["GENERATE_TREEVIEW"] = "YES",
             ["DISABLE_INDEX"] = "NO",
+            ["HTML_HEADER"] = "/app/resources/html/header.html",
             ["FULL_SIDEBAR"] = "NO",
+            ["SEARCHENGINE"] = "YES",
             ["HTML_COLORSTYLE"] = "LIGHT",
             ["HTML_EXTRA_STYLESHEET"] = "/doxygen-awesome-css/doxygen-awesome.css /doxygen-awesome-css/doxygen-awesome-sidebar-only.css",
             ["HTML_EXTRA_FILES"] =

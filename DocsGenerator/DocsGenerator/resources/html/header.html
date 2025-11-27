@@ -1,0 +1,246 @@
+﻿<!-- HTML header for doxygen -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="$langISO">
+<head>
+    <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=11" />
+    <meta name="generator" content="Doxygen $doxygenversion" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!--BEGIN PROJECT_NAME-->
+    <title>$projectname: $title</title><!--END PROJECT_NAME-->
+    <!--BEGIN !PROJECT_NAME-->
+    <title>$title</title><!--END !PROJECT_NAME-->
+    <link href="$relpath^tabs.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="$relpath^jquery.js"></script>
+    <script type="text/javascript" src="$relpath^dynsections.js"></script>
+    $treeview
+    $search
+    $mathjax
+    <link href="$relpath^$stylesheet" rel="stylesheet" type="text/css" />
+    $extrastylesheet
+    <script type="text/javascript" src="$relpath^doxygen-awesome-darkmode-toggle.js"></script>
+    <script type="text/javascript" src="$relpath^doxygen-awesome-fragment-copy-button.js"></script>
+    <script type="text/javascript" src="$relpath^doxygen-awesome-paragraph-link.js"></script>
+
+    <style>
+        #nav-wrapper {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        #nav-tree-contents {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* Desktop */
+        #version-selector-container {
+            flex-shrink: 0;
+            padding: 12px;
+            border-top: 1px solid var(--separator-color);
+            background: var(--page-background-color);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            text-align: left;
+        }
+
+            #version-selector-container label {
+                font-weight: 600;
+                color: var(--primary-color, #2980b9);
+                font-size: 14px;
+                text-align: left;
+            }
+
+            #version-selector-container select {
+                width: 100%;
+                padding: 8px 12px;
+                border-radius: 6px;
+                background: var(--page-background-color);
+                border: 1px solid var(--separator-color);
+                cursor: pointer;
+                font-size: 14px;
+                transition: all 0.2s ease;
+                color: var(--page-foreground-color);
+            }
+
+                #version-selector-container select:hover {
+                    border-color: var(--primary-color, #2980b9);
+                }
+
+                #version-selector-container select:focus {
+                    outline: none;
+                    border-color: var(--primary-color, #2980b9);
+                    box-shadow: 0 0 0 2px rgba(41, 128, 185, 0.1);
+                }
+
+        /* Mobile */
+        #version-selector-container-mobile {
+            padding: 12px;
+            padding-left: 12px;
+            border-top: 1px solid var(--separator-color);
+            background: var(--page-background-color);
+            gap: 8px;
+            align-items: flex-start;
+            list-style: none;
+        }
+
+        @media (min-width: 769px) {
+            #version-selector-container-mobile {
+                display: var(--menu-display);
+                width: auto;
+                height: auto;
+                padding: 0;
+                margin: 0;
+                overflow: hidden;
+            }
+        }
+
+        #version-selector-container-mobile label {
+            font-weight: 600;
+            color: var(--primary-color, #2980b9);
+            font-size: 14px;
+            text-align: left;
+        }
+
+        #version-selector-container-mobile select {
+            width: calc(100% - 24px);
+            padding: 8px 12px;
+            border-radius: 6px;
+            background: var(--page-background-color);
+            border: 1px solid var(--separator-color);
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+            #version-selector-container-mobile select:hover {
+                border-color: var(--primary-color, #2980b9);
+            }
+
+            #version-selector-container-mobile select:focus {
+                outline: none;
+                border-color: var(--primary-color, #2980b9);
+                box-shadow: 0 0 0 2px rgba(41, 128, 185, 0.1);
+            }
+
+        #nav-sync {
+            display: none !important;
+        }
+    </style>
+
+</head>
+<body>
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            DoxygenAwesomeDarkModeToggle.targetSelector = '#theme-toggle-container'
+            DoxygenAwesomeDarkModeToggle.title = "Переключить тему"
+            DoxygenAwesomeDarkModeToggle.enableStoragePreference = true
+            DoxygenAwesomeDarkModeToggle.init()
+            DoxygenAwesomeFragmentCopyButton.init()
+            DoxygenAwesomeParagraphLink.init()
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            function createVersionSelector(isMobile) {
+                const container = isMobile ? document.createElement("li") : document.createElement("div");
+                container.id = isMobile ? "version-selector-container-mobile" : "version-selector-container";
+
+                container.innerHTML = `
+                    <label for="version-selector-${isMobile ? 'mobile' : 'desktop'}">Version</label>
+                    <select id="version-selector-${isMobile ? 'mobile' : 'desktop'}" class="version-selector">
+                        <option value="">v2.0.0 (текущая)</option>
+                        <option value="/docs/v1.9.0/">v1.9.0</option>
+                        <option value="/docs/v1.8.0/">v1.8.0</option>
+                        <option value="/docs/v1.7.0/">v1.7.0</option>
+                        <option value="/docs/v1.6.0/">v1.6.0</option>
+                    </select>
+                `;
+
+                return container;
+            }
+
+            function waitForElement(selector, callback) {
+                const el = document.querySelector(selector);
+                if (el) return callback(el);
+
+                const observer = new MutationObserver(() => {
+                    const el = document.querySelector(selector);
+                    if (el) {
+                        observer.disconnect();
+                        callback(el);
+                    }
+                });
+
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true
+                });
+            }
+
+            // Desktop
+            const tree = document.getElementById("nav-tree-contents");
+            if (tree) {
+                const wrapper = document.createElement("div");
+                wrapper.id = "nav-wrapper";
+                tree.parentNode.insertBefore(wrapper, tree);
+                wrapper.appendChild(tree);
+
+                wrapper.appendChild(createVersionSelector(false));
+            }
+
+            // Mobile
+            waitForElement("#main-menu", (mainMenu) => {
+
+                waitForElement("#main-menu #searchBoxPos2", (searchBox) => {
+
+                    const li = createVersionSelector(true);
+
+                    const firstLi = mainMenu.querySelector("li");
+                    if (firstLi) li.className = firstLi.className;
+
+                    mainMenu.insertBefore(li, searchBox);
+                });
+
+            });
+
+
+
+        });
+    </script>
+    <div id="top">
+        <!-- do not remove this div, it is closed by doxygen! -->
+        <!--BEGIN TITLEAREA-->
+        <div id="titlearea">
+            <table cellspacing="0" cellpadding="0">
+                <tbody>
+                    <tr id="projectrow">
+                        <!--BEGIN PROJECT_LOGO-->
+                        <td id="projectlogo"><img alt="Logo" src="$relpath^$projectlogo"></td>
+                        <!--END PROJECT_LOGO-->
+                        <!--BEGIN PROJECT_NAME-->
+                        <td id="projectalign">
+                            <div id="projectname">
+                                $projectname<!--BEGIN PROJECT_NUMBER--><span id="projectnumber">&#160;$projectnumber</span><!--END PROJECT_NUMBER-->
+                            </div>
+                            <!--BEGIN PROJECT_BRIEF--><div id="projectbrief">$projectbrief</div><!--END PROJECT_BRIEF-->
+                        </td>
+                        <!--END PROJECT_NAME-->
+                        <!--BEGIN !PROJECT_NAME-->
+                        <!--BEGIN PROJECT_BRIEF-->
+                        <td>
+                            <div id="projectbrief">$projectbrief</div>
+                        </td>
+                        <!--END PROJECT_BRIEF-->
+                        <!--END !PROJECT_NAME-->
+                    </tr>
+                    <!--BEGIN DISABLE_INDEX-->
+                    <!--BEGIN SEARCHENGINE-->
+                    <!--END SEARCHENGINE-->
+                    <!--END DISABLE_INDEX-->
+                </tbody>
+            </table>
+        </div>
+        <!--END TITLEAREA-->
+        <!-- end header part -->

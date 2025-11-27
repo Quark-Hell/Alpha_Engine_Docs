@@ -15,8 +15,4 @@
     <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.5.2" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\DocsGenerator\DocsGenerator.csproj" />
-  </ItemGroup>
-
 </Project>
