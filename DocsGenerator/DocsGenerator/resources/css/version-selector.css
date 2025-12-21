@@ -1,0 +1,64 @@
+﻿#version-selector-container {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--separator-color, #e8e8e8);
+    background-color: transparent;
+    margin-bottom: 8px;
+}
+
+.version-selector-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.version-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--page-foreground-color, #555);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: default;
+}
+
+.version-icon {
+    opacity: 0.7;
+}
+
+.version-select {
+    width: 100%;
+    padding: 8px 32px 8px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--page-foreground-color, #333);
+    background-color: var(--page-background-color, #fff);
+    border: 1px solid var(--separator-color, #ddd);
+    border-radius: 4px;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23555' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px;
+    transition: all 0.2s ease;
+}
+
+    .version-select:hover {
+        border-color: var(--primary-color, #2c89e0);
+        box-shadow: 0 0 0 1px var(--primary-color, #2c89e0);
+    }
+
+    .version-select:focus {
+        outline: none;
+        border-color: var(--primary-color, #2c89e0);
+        box-shadow: 0 0 0 2px rgba(44, 137, 224, 0.2);
+    }
+
+html.dark-mode .version-select {
+    color: var(--page-foreground-color, #d4d4d4);
+    background-color: var(--page-background-color, #2d2d2d);
+    border-color: var(--separator-color, #404040);
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23d4d4d4' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+}

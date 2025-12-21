@@ -46,9 +46,38 @@ namespace DocsGenerator.Controllers
             if (version == null)
                 return NotFound("Version not found");
 
-            var url = $"{version.DocsPath}/html/index.html";
+            var url = $"http://localhost:8080{version.DocsPath}/html/index.html";
 
             return Redirect(url);
+        }
+
+        [HttpGet("api/versions")]
+        public async Task<IEnumerable<object>> GetVersions()
+        {
+            var data = await _db.ProjectVersions
+                .OrderByDescending(v => v.CreatedAt)
+                .ToListAsync();
+            return data.Select(v => new {
+                path = v.DocsPath ?? $"/docs/{v.CommitHash}/",
+                date = v.CreatedAt.ToString("yyyy-MM-dd"),
+                hash = v.CommitHash,
+                name = v.CommitName
+            });
+        }
+
+        [HttpGet("version-by-date")]
+        public IActionResult GetVersionByDate(string date)
+        {
+            if (!DateTime.TryParse(date, out var parsed))
+                return BadRequest("Invalid date format");
+
+            var version = _db.ProjectVersions
+                .FirstOrDefault(v => v.CreatedAt.Date == parsed.Date);
+
+            if (version == null)
+                return NotFound();
+
+            return Ok(new { docsPath = version.DocsPath });
         }
     }
 }

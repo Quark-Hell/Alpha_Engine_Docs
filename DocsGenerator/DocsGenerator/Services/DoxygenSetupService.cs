@@ -190,7 +190,7 @@ public class DoxygenSetupService
             ["HTML_EXTRA_FILES"] =
     "/doxygen-awesome-css/doxygen-awesome-darkmode-toggle.js " +
     "/doxygen-awesome-css/doxygen-awesome-fragment-copy-button.js " +
-    "/doxygen-awesome-css/doxygen-awesome-paragraph-link.js ",
+    "/doxygen-awesome-css/doxygen-awesome-paragraph-link.js",
 
 
             ["SHOW_FILES"] = "NO",

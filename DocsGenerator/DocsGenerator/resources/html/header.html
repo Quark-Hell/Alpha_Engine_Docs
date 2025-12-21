@@ -84,6 +84,9 @@
             gap: 8px;
             align-items: flex-start;
             list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         @media (min-width: 769px) {
@@ -135,7 +138,7 @@
     <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', function () {
             DoxygenAwesomeDarkModeToggle.targetSelector = '#theme-toggle-container'
-            DoxygenAwesomeDarkModeToggle.title = "Переключить тему"
+            DoxygenAwesomeDarkModeToggle.title = "Switch theme"
             DoxygenAwesomeDarkModeToggle.enableStoragePreference = true
             DoxygenAwesomeDarkModeToggle.init()
             DoxygenAwesomeFragmentCopyButton.init()
@@ -143,20 +146,69 @@
         });
 
         document.addEventListener("DOMContentLoaded", function () {
-            function createVersionSelector(isMobile) {
-                const container = isMobile ? document.createElement("li") : document.createElement("div");
+            async function loadVersions() {
+                try {
+                    const response = await fetch('/docs/api/versions');
+                    if (!response.ok) {
+                        console.error('Failed to load versions:', response.status);
+                        return [];
+                    }
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error loading versions:', error);
+                    return [];
+                }
+            }
+
+            async function createVersionSelector(isMobile) {
+                const container = document.createElement("div");
+                const selectId = `version-selector-${isMobile ? 'mobile' : 'desktop'}`;
                 container.id = isMobile ? "version-selector-container-mobile" : "version-selector-container";
 
+                const versions = await loadVersions();
+
+                const optionsHtml = versions
+                    .slice(1)
+                    .map(v => `<option value="${v.path}">v${v.date}</option>`)
+                    .join("");
+
                 container.innerHTML = `
-                    <label for="version-selector-${isMobile ? 'mobile' : 'desktop'}">Version</label>
-                    <select id="version-selector-${isMobile ? 'mobile' : 'desktop'}" class="version-selector">
-                        <option value="">v2.0.0 (текущая)</option>
-                        <option value="/docs/v1.9.0/">v1.9.0</option>
-                        <option value="/docs/v1.8.0/">v1.8.0</option>
-                        <option value="/docs/v1.7.0/">v1.7.0</option>
-                        <option value="/docs/v1.6.0/">v1.6.0</option>
+                    <label for="${selectId}">Version</label>
+                    <select id="${selectId}" class="version-selector">
+                        <option value="">${versions[0] ? "latest (" + versions[0].date + ")" : "latest"}</option>
+                        ${optionsHtml}
                     </select>
                 `;
+
+                const select = container.querySelector("select");
+
+                select.addEventListener("change", async function () {
+                    const selectedDate = this.value;
+
+                    // latest
+                    if (!selectedDate) {
+                        window.location.href = "/docs/latest/";
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch(`/docs/api/version-by-date?date=${encodeURIComponent(selectedDate)}`);
+                        if (!response.ok) {
+                            console.error("Failed to load version:", response.status);
+                            return;
+                        }
+
+                        const data = await response.json();
+                        if (data.docsPath) {
+                            window.location.href = data.docsPath;
+                        } else {
+                            console.error("docsPath is missing in response");
+                        }
+                    } catch (err) {
+                        console.error("Error requesting version:", err);
+                    }
+                });
+
 
                 return container;
             }
@@ -180,33 +232,32 @@
             }
 
             // Desktop
-            const tree = document.getElementById("nav-tree-contents");
-            if (tree) {
-                const wrapper = document.createElement("div");
-                wrapper.id = "nav-wrapper";
-                tree.parentNode.insertBefore(wrapper, tree);
-                wrapper.appendChild(tree);
+            (async () => {
+                const tree = document.getElementById("nav-tree-contents");
+                if (tree) {
+                    const wrapper = document.createElement("div");
+                    wrapper.id = "nav-wrapper";
+                    tree.parentNode.insertBefore(wrapper, tree);
+                    wrapper.appendChild(tree);
 
-                wrapper.appendChild(createVersionSelector(false));
-            }
+                    wrapper.appendChild(await createVersionSelector(false));
+                }
+            })();
 
             // Mobile
             waitForElement("#main-menu", (mainMenu) => {
+                waitForElement("#main-menu #searchBoxPos2", async (searchBox) => {
 
-                waitForElement("#main-menu #searchBoxPos2", (searchBox) => {
+                    const div = await createVersionSelector(true);
+                    const li = document.createElement("li");
 
-                    const li = createVersionSelector(true);
+                    li.appendChild(div);
+                    mainMenu.insertBefore(li, searchBox);
 
                     const firstLi = mainMenu.querySelector("li");
                     if (firstLi) li.className = firstLi.className;
-
-                    mainMenu.insertBefore(li, searchBox);
                 });
-
             });
-
-
-
         });
     </script>
     <div id="top">
