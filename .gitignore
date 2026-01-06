@@ -417,3 +417,4 @@ FodyWeavers.xsd
 *.msm
 *.msp
 DocsGenerator/DocsGenerator.AppHost/generated-docs
+.DS_Store
