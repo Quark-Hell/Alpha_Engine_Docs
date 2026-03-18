@@ -1,0 +1,6 @@
+# Use this workspace to collaborate
+workspace:
+  id: e1e8c1d3-8b9a-4be9-8369-ce3c84b295ea
+localResources:
+  specs:
+    - ..\DocsGenerator\DocsGenerator\obj\Debug\net9.0\EndpointInfo\DocsGenerator.json
